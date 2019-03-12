@@ -11,7 +11,6 @@ require 'pry'
 require 'json_spec'
 require 'equivalent-xml'
 
-
 FIXTURES_XML_PATH = File.join(File.dirname(__FILE__), 'fixtures/cobertura.xml')
 FIXTURES_JSON_PATH = File.join(File.dirname(__FILE__), 'fixtures/report.json')
 FIXTURES_LLCOV_PATH = File.join(File.dirname(__FILE__), 'fixtures/report.llcov')
@@ -21,27 +20,21 @@ FIXTURES_PROJECT_PATH = File.join(File.dirname(__FILE__), 'fixtures/fixtures.xco
 FIXTURES_WORKSPACE_PATH = File.join(File.dirname(__FILE__), 'fixtures/fixtures.xcworkspace')
 FIXTURES_SWIFT_FILE_PATH = File.join(File.dirname(__FILE__), 'fixtures/fixtures/Fixtures.swift')
 TEMP_DERIVED_DATA_PATH = File.join(File.dirname(__FILE__), 'DerivedData')
-TEMP_PROJECT_BUILD_PATH = File.join(TEMP_DERIVED_DATA_PATH, "libfixtures")
-TEMP_WORKSPACE_BUILD_PATH = File.join(TEMP_DERIVED_DATA_PATH, "libfixtures")
+TEMP_PROJECT_BUILD_PATH = File.join(TEMP_DERIVED_DATA_PATH, 'libfixtures')
+TEMP_WORKSPACE_BUILD_PATH = File.join(TEMP_DERIVED_DATA_PATH, 'libfixtures')
 TEMP_OBJC_GCNO_PATH = File.join(File.dirname(__FILE__), 'fixtures/ObjectiveC.gcno')
 TEMP_OBJC_GCDA_PATH = File.join(File.dirname(__FILE__), 'fixtures/ObjectiveC.gcda')
 
 module FixtureHelpers
   def self.delete_derived_data
     dir = Dir[TEMP_DERIVED_DATA_PATH].first
-    if dir
-      FileUtils.rm_rf(dir)
-    end
+    FileUtils.rm_rf(dir) if dir
   end
 
   def self.delete_temp_gcov_files
-    if File.file?(TEMP_OBJC_GCNO_PATH)
-      FileUtils.rm(TEMP_OBJC_GCNO_PATH)
-    end
+    FileUtils.rm(TEMP_OBJC_GCNO_PATH) if File.file?(TEMP_OBJC_GCNO_PATH)
 
-    if File.file?(TEMP_OBJC_GCDA_PATH)
-      FileUtils.rm_f(TEMP_OBJC_GCDA_PATH)
-    end
+    FileUtils.rm_f(TEMP_OBJC_GCDA_PATH) if File.file?(TEMP_OBJC_GCDA_PATH)
   end
 end
 
@@ -60,5 +53,5 @@ RSpec.configure do |config|
 end
 
 JsonSpec.configure do
-  exclude_keys "timestamp"
+  exclude_keys 'timestamp'
 end

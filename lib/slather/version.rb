@@ -1,3 +1,3 @@
-module Slather
-  VERSION = '2.4.7' unless defined?(Slather::VERSION)
+module Slather # :nodoc:
+  VERSION = '2.5.0'.freeze unless defined?(Slather::VERSION)
 end
