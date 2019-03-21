@@ -12,6 +12,7 @@ module Slather
           Slather::CoverageFile
         end
       end
+
       private :coverage_file_class
 
       def post
@@ -51,12 +52,12 @@ module Slather
 
         create_empty_xml_report
         coverage_node = @doc.root
-        source_node = @doc.at_css "source" 
+        source_node = @doc.at_css "source"
         source_node.content = Pathname.pwd.to_s
         packages_node = @doc.at_css "packages"
 
         # group files by path
-          grouped_coverage_files(coverage_files).each do |path , package_coverage_files|
+        grouped_coverage_files(coverage_files).each do |path, package_coverage_files|
           package_node = Nokogiri::XML::Node.new "package", @doc
           package_node.parent = packages_node
           classes_node = Nokogiri::XML::Node.new "classes", @doc
@@ -124,7 +125,7 @@ module Slather
         class_node = Nokogiri::XML::Node.new "class", @doc
         class_node['name'] = filename
         class_node['filename'] = filepath
-        class_node['line-rate'] = '%.16f' %  [(coverage_file.num_lines_testable > 0) ? coverage_file.rate_lines_tested : 1.0]
+        class_node['line-rate'] = '%.16f' % [(coverage_file.num_lines_testable > 0) ? coverage_file.rate_lines_tested : 1.0]
         class_node['branch-rate'] = '%.16f' % [(coverage_file.num_branches_testable > 0) ? coverage_file.rate_branches_tested : 1.0]
         class_node['complexity'] = '0.0'
 
@@ -132,7 +133,7 @@ module Slather
         methods_node.parent = class_node
         lines_node = Nokogiri::XML::Node.new "lines", @doc
         lines_node.parent = class_node
-        
+
         coverage_file.all_lines.each do |line|
           if coverage_file.coverage_for_line(line)
             line_node = create_line_node(line, coverage_file)
@@ -148,9 +149,9 @@ module Slather
         line_node['number'] = line_number
         line_node['branch'] = "false"
         line_node['hits'] = coverage_file.coverage_for_line(line)
-      
+
         unless coverage_file.branch_coverage_data_for_statement_on_line(line_number).empty?
-          line_node['branch'] = "true"  
+          line_node['branch'] = "true"
           conditions_node = Nokogiri::XML::Node.new "conditions", @doc
           conditions_node.parent = line_node
           condition_node = Nokogiri::XML::Node.new "condition", @doc
@@ -169,9 +170,9 @@ module Slather
       def create_empty_xml_report
         builder = Nokogiri::XML::Builder.new do |xml|
           xml.doc.create_internal_subset(
-            'coverage',
-            nil,
-            "http://cobertura.sourceforge.net/xml/coverage-04.dtd"
+              'coverage',
+              nil,
+              "http://cobertura.sourceforge.net/xml/coverage-04.dtd"
           )
           xml.coverage do
             xml.sources do

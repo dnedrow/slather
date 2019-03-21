@@ -20,9 +20,10 @@ module Slather
     def create_line_data
       all_lines = source_code_lines
       line_data = Hash.new
-      all_lines.each { |line| line_data[line_number_in_line(line, self.line_numbers_first)] = line }
+      all_lines.each {|line| line_data[line_number_in_line(line, self.line_numbers_first)] = line}
       self.line_data = line_data
     end
+
     private :create_line_data
 
     def path_on_first_line?
@@ -56,7 +57,7 @@ module Slather
     end
 
     def source_file_pathname= (source_file_pathname)
-        @source_file_pathname = source_file_pathname
+      @source_file_pathname = source_file_pathname
     end
 
     def source_file
@@ -104,8 +105,8 @@ module Slather
       if group != nil
         match = group.strip
         case match
-          when /[0-9]+/
-            return match.to_i
+        when /[0-9]+/
+          return match.to_i
         end
       else
         # llvm-cov outputs hit counts as 25.3k or 3.8M, so check this pattern as well
@@ -114,8 +115,8 @@ module Slather
         if did_match
           match = $5.strip
           case match
-            when /[0-9]+/
-              return match.to_i
+          when /[0-9]+/
+            return match.to_i
           end
         end
       end
@@ -189,6 +190,7 @@ module Slather
     def supported_file_extensions
       ["swift"]
     end
+
     private :supported_file_extensions
 
     def ignored?

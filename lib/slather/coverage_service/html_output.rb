@@ -14,12 +14,14 @@ module Slather
           Slather::CoverageFile
         end
       end
+
       private :coverage_file_class
 
       def directory_path
         is_path_valid = !output_directory.nil? && !output_directory.strip.eql?("")
         is_path_valid ? File.expand_path(output_directory) : "html"
       end
+
       private :directory_path
 
       def post
@@ -70,12 +72,12 @@ module Slather
 
         total_relevant_lines = 0
         total_tested_lines = 0
-        coverage_files.each { |coverage_file|
+        coverage_files.each {|coverage_file|
           total_tested_lines += coverage_file.num_lines_tested
           total_relevant_lines += coverage_file.num_lines_testable
         }
 
-        builder = Nokogiri::HTML::Builder.with(template.at('#reports')) { |cov|
+        builder = Nokogiri::HTML::Builder.with(template.at('#reports')) {|cov|
           cov.h2 "Files for \"#{project_name}\""
 
           cov.h4 {
@@ -86,7 +88,7 @@ module Slather
 
           cov.input(:class => "search", :placeholder => "Search")
 
-          cov.table(:class => "coverage_list", :cellspacing => 0,  :cellpadding => 0) {
+          cov.table(:class => "coverage_list", :cellspacing => 0, :cellpadding => 0) {
 
             cov.thead {
               cov.tr {
@@ -100,14 +102,14 @@ module Slather
             }
 
             cov.tbody(:class => "list") {
-              coverage_files.each { |coverage_file|
+              coverage_files.each {|coverage_file|
                 filename = File.basename(coverage_file.source_file_pathname_relative_to_repo_root)
                 filename_link = CGI.escape(filename) + ".html"
 
                 cov.tr {
                   percentage = coverage_file.percentage_lines_tested
 
-                  cov.td { cov.span decimal_f(percentage), :class => "percentage #{class_for_coverage_percentage(percentage)} data_percentage" }
+                  cov.td {cov.span decimal_f(percentage), :class => "percentage #{class_for_coverage_percentage(percentage)} data_percentage"}
                   cov.td(:class => "data_filename") {
                     cov.a filename, :href => filename_link
                   }
@@ -126,7 +128,7 @@ module Slather
       end
 
       def create_htmls_from_files(coverage_files)
-        coverage_files.map { |file| create_html_from_file file }
+        coverage_files.map {|file| create_html_from_file file}
       end
 
       def create_html_from_file(coverage_file)
@@ -139,7 +141,7 @@ module Slather
 
         template = generate_html_template(filename, false, is_file_empty)
 
-        builder = Nokogiri::HTML::Builder.with(template.at('#reports')) { |cov|
+        builder = Nokogiri::HTML::Builder.with(template.at('#reports')) {|cov|
           cov.h2(:class => "cov_title") {
             cov.span("Coverage for \"#{filename}\"" + (!is_file_empty ? " : " : ""))
             cov.span("#{decimal_f(percentage)}%", :class => class_for_coverage_percentage(percentage)) unless is_file_empty
@@ -165,13 +167,13 @@ module Slather
               line_data = [line_number, line_source, hits_for_coverage_line(coverage_file, line)]
               classes = ["num", "src", "coverage"]
 
-              cov.tr(:class => class_for_coverage_line(coverage_file,line)) {
-                line_data.each_with_index { |line, idx|
+              cov.tr(:class => class_for_coverage_line(coverage_file, line)) {
+                line_data.each_with_index {|line, idx|
                   if idx != 1
                     cov.td(line, :class => classes[idx])
                   else
                     cov.td(:class => classes[idx]) {
-                      cov.pre { cov.code(line, :class => "objc") }
+                      cov.pre {cov.code(line, :class => "objc")}
                     }
                   end
                 }
@@ -198,13 +200,13 @@ module Slather
             doc.body {
               doc.header {
                 doc.div(:class => "row") {
-                  doc.a(:href => "index.html") { doc.img(:src => logo_path, :alt => "Slather logo") }
+                  doc.a(:href => "index.html") {doc.img(:src => logo_path, :alt => "Slather logo")}
                 }
               }
-              doc.div(:class => "row") { doc.div(:id => "reports") }
+              doc.div(:class => "row") {doc.div(:id => "reports")}
               doc.footer {
                 doc.div(:class => "row") {
-                  doc.p { doc.a("Fork me on Github", :href => "https://github.com/SlatherOrg/slather") }
+                  doc.p {doc.a("Fork me on Github", :href => "https://github.com/SlatherOrg/slather")}
                   doc.p("© #{Date.today.year} Slather")
                 }
               }
@@ -231,26 +233,35 @@ module Slather
       def class_for_coverage_line(coverage_file, coverage_line)
         hits = coverage_file.coverage_for_line(coverage_line)
         case
-        when hits == nil then "never"
-        when hits > 0 then "covered"
-        else "missed"
+        when hits == nil then
+          "never"
+        when hits > 0 then
+          "covered"
+        else
+          "missed"
         end
       end
 
       def hits_for_coverage_line(coverage_file, coverage_line)
         hits = coverage_file.coverage_for_line(coverage_line)
         case
-        when hits == nil then ""
-        when hits > 0 then "#{hits}x"
-        else "!"
+        when hits == nil then
+          ""
+        when hits > 0 then
+          "#{hits}x"
+        else
+          "!"
         end
       end
 
       def class_for_coverage_percentage(percentage)
         case
-        when percentage > 85 then "cov_high"
-        when percentage > 70 then "cov_medium"
-        else "cov_low"
+        when percentage > 85 then
+          "cov_high"
+        when percentage > 70 then
+          "cov_medium"
+        else
+          "cov_low"
         end
       end
 

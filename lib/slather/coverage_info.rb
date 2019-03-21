@@ -2,7 +2,7 @@ module Slather
   module CoverageInfo
 
     def num_lines_tested
-      line_coverage_data.compact.select { |cd| cd > 0 }.count
+      line_coverage_data.compact.select {|cd| cd > 0}.count
     end
 
     def num_lines_testable
@@ -34,7 +34,7 @@ module Slather
     end
 
     def num_branch_hits_for_statement_on_line(line_number)
-      branch_coverage_data_for_statement_on_line(line_number).count { |hit_count| hit_count > 0 }
+      branch_coverage_data_for_statement_on_line(line_number).count {|hit_count| hit_count > 0}
     end
 
     def rate_branch_coverage_for_statement_on_line(line_number)

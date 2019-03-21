@@ -22,7 +22,7 @@ module Slather
           path = Dir["#{project.source_directory}/**/#{base_filename}.{#{supported_file_extensions.join(",")}}"].first
           path &&= Pathname(path)
         else
-          pbx_file = project.files.detect { |pbx_file|
+          pbx_file = project.files.detect {|pbx_file|
             current_base_filename = pbx_file.real_path.basename
             ext_name = File.extname(current_base_filename.to_s)[1..-1]
             current_base_filename.sub_ext("") == base_filename && supported_file_extensions.include?(ext_name)
@@ -54,7 +54,7 @@ module Slather
           gcov_data = ""
         end
 
-        gcov_files_created.each { |file| FileUtils.rm_f(file) }
+        gcov_files_created.each {|file| FileUtils.rm_f(file)}
         gcov_data
       end
     end
@@ -137,6 +137,7 @@ module Slather
     def supported_file_extensions
       ["cpp", "mm", "m"]
     end
+
     private :supported_file_extensions
   end
 end

@@ -12,13 +12,14 @@ module Slather
           Slather::CoverageFile
         end
       end
+
       private :coverage_file_class
 
       def post
         report = coverage_files.map do |file|
           {
-            file: file.source_file_pathname_relative_to_repo_root,
-            coverage: file.line_coverage_data
+              file: file.source_file_pathname_relative_to_repo_root,
+              coverage: file.line_coverage_data
           }
         end.to_json
 

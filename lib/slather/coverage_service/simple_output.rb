@@ -9,6 +9,7 @@ module Slather
           Slather::CoverageFile
         end
       end
+
       private :coverage_file_class
 
       def post

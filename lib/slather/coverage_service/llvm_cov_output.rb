@@ -12,6 +12,7 @@ module Slather
           raise StandardError, "Only profdata input format supported by llvm-cov show."
         end
       end
+
       private :coverage_file_class
 
       def post
