@@ -139,7 +139,7 @@ module Slather
             if ci_service == :travis_ci
 
               if coverage_access_token.to_s.strip.length > 0
-                raise StandardError, "Access token is set. Uploading coverage data for public repositories doesn't require an access token."
+                raise SlatherError, "Access token is set. Uploading coverage data for public repositories doesn't require an access token."
               end
 
               {
@@ -150,7 +150,7 @@ module Slather
             elsif ci_service == :travis_pro
 
               if coverage_access_token.to_s.strip.length == 0
-                raise StandardError, "Access token is not set. Uploading coverage data for private repositories requires an access token."
+                raise SlatherError, "Access token is not set. Uploading coverage data for private repositories requires an access token."
               end
 
               {
@@ -161,7 +161,7 @@ module Slather
               }.to_json
             end
           else
-            raise StandardError, "Environment variable `TRAVIS_JOB_ID` not set. Is this running on a travis build?"
+            raise SlatherError, "Environment variable `TRAVIS_JOB_ID` not set. Is this running on a travis build?"
           end
         elsif ci_service == :circleci
           if circleci_job_id
@@ -180,7 +180,7 @@ module Slather
 
             coveralls_hash.to_json
           else
-            raise StandardError, "Environment variable `CIRCLE_BUILD_NUM` not set. Is this running on a circleci build?"
+            raise SlatherError, "Environment variable `CIRCLE_BUILD_NUM` not set. Is this running on a circleci build?"
           end
         elsif ci_service == :jenkins
           if jenkins_job_id
@@ -192,7 +192,7 @@ module Slather
                 git: jenkins_git_info
             }.to_json
           else
-            raise StandardError, "Environment variable `BUILD_ID` not set. Is this running on a jenkins build?"
+            raise SlatherError, "Environment variable `BUILD_ID` not set. Is this running on a jenkins build?"
           end
         elsif ci_service == :buildkite
           if buildkite_job_id
@@ -206,7 +206,7 @@ module Slather
                 :service_pull_request => buildkite_pull_request
             }.to_json
           else
-            raise StandardError, "Environment variable `BUILDKITE_BUILD_NUMBER` not set. Is this running on a buildkite build?"
+            raise SlatherError, "Environment variable `BUILDKITE_BUILD_NUMBER` not set. Is this running on a buildkite build?"
           end
         elsif ci_service == :teamcity
           if teamcity_job_id
@@ -218,10 +218,10 @@ module Slather
                 :git => teamcity_git_info
             }.to_json
           else
-            raise StandardError, "Environment variable `TC_BUILD_NUMBER` not set. Is this running on a teamcity build?"
+            raise SlatherError, "Environment variable `TC_BUILD_NUMBER` not set. Is this running on a teamcity build?"
           end
         else
-          raise StandardError, "No support for ci named #{ci_service}"
+          raise SlatherError, "No support for ci named #{ci_service}"
         end
       end
 
@@ -240,11 +240,11 @@ module Slather
 
             if curl_result_json["error"]
               error_message = curl_result_json["message"]
-              raise StandardError, "Error while uploading coverage data to Coveralls. CI Service: #{ci_service} Message: #{error_message}"
+              raise SlatherError, "Error while uploading coverage data to Coveralls. CI Service: #{ci_service} Message: #{error_message}"
             end
           end
 
-        rescue StandardError => e
+        rescue SlatherError => e
           FileUtils.rm(f)
           raise e
         end

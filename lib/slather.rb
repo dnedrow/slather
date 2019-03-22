@@ -13,6 +13,9 @@ require 'slather/coverage_service/html_output'
 require 'slather/coverage_service/json_output'
 require 'slather/coverage_service/llvm_cov_output'
 require 'cfpropertylist'
+require 'active_support/deprecation'
+
+Gem::Deprecate.skip = true if defined?(Gem::Deprecate)
 
 module Slather
 

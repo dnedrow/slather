@@ -9,7 +9,7 @@ module Slather
         if input_format == "profdata"
           Slather::ProfdataCoverageFile
         else
-          raise StandardError, "Only profdata input format supported by llvm-cov show."
+          raise SlatherError, "Only profdata input format supported by llvm-cov show."
         end
       end
 

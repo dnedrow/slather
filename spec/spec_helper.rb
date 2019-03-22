@@ -10,7 +10,11 @@ require 'slather'
 require 'pry'
 require 'json_spec'
 require 'equivalent-xml'
+require 'debug_inspector'
 
+def bug string
+  puts string + ': ' + eval(string).inspect
+end
 
 FIXTURES_XML_PATH = File.join(File.dirname(__FILE__), 'fixtures/cobertura.xml')
 FIXTURES_JSON_PATH = File.join(File.dirname(__FILE__), 'fixtures/report.json')
