@@ -44,8 +44,8 @@ module Slather
   class Project < Xcodeproj::Project
 
     attr_accessor :build_directory, :ignore_list, :ci_service, :coverage_service, :coverage_access_token, :source_directory,
-      :output_directory, :xcodeproj, :show_html, :verbose_mode, :input_format, :scheme, :workspace, :binary_file, :binary_basename, :arch, :source_files,
-      :decimals, :llvm_version, :configuration
+                  :output_directory, :xcodeproj, :show_html, :verbose_mode, :input_format, :scheme, :workspace, :binary_file, :binary_basename, :arch, :source_files,
+                  :decimals, :llvm_version, :configuration
 
     alias_method :setup_for_coverage, :slather_setup_for_coverage
 
@@ -62,22 +62,23 @@ module Slather
     def derived_data_path
       # Get the derived data path from xcodebuild
       # Use OBJROOT when possible, as it provides regardless of whether or not the Derived Data location is customized
-      if self.workspace
-        projectOrWorkspaceArgument = "-workspace \"#{self.workspace}\""
-      else
-        projectOrWorkspaceArgument = "-project \"#{self.path}\""
-      end
+
+      derived_data_path = nil
+
+      self.workspace ?
+          project_or_workspace_argument = "-workspace \"#{self.workspace}\"" :
+          project_or_workspace_argument = "-project \"#{self.path}\""
 
       if self.scheme
-        schemeArgument = "-scheme \"#{self.scheme}\""
-        buildAction = "test"
+        scheme_argument = "-scheme \"#{self.scheme}\""
+        build_action = "test"
       else
-        schemeArgument = nil
-        buildAction = nil
+        scheme_argument = nil
+        build_action = nil
       end
 
       # redirect stderr to avoid xcodebuild errors being printed.
-      build_settings = `xcodebuild #{projectOrWorkspaceArgument} #{schemeArgument} -showBuildSettings #{buildAction} CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO 2>&1`
+      build_settings = `xcodebuild #{project_or_workspace_argument} #{scheme_argument} -showBuildSettings #{build_action} CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO 2>&1`
 
       if build_settings
         derived_data_path = build_settings.match(/ OBJROOT = (.+)/)
@@ -91,6 +92,7 @@ module Slather
 
       derived_data_path
     end
+
     private :derived_data_path
 
     def coverage_files
@@ -114,6 +116,7 @@ module Slather
         dedupe(coverage_files)
       end
     end
+
     private :gcov_coverage_files
 
     def profdata_coverage_files
@@ -128,6 +131,7 @@ module Slather
 
       coverage_files
     end
+
     private :profdata_coverage_files
 
     def pathnames_per_binary(binary_path)
@@ -139,6 +143,7 @@ module Slather
         end)
       end
     end
+
     private :pathnames_per_binary
 
     def create_coverage_files_for_binary(binary_path, pathnames_per_binary)
@@ -147,19 +152,20 @@ module Slather
       begin
         coverage_files.concat(create_coverage_files(binary_path, pathnames_per_binary))
       rescue Errno::E2BIG => e
-        # pathnames_per_binary is too big for the OS to handle so it's split in two halfs which are processed independently
+        # pathnames_per_binary is too big for the OS to handle so it's split in two halves which are processed independently
         if pathnames_per_binary.count > 1
-          left, right = pathnames_per_binary.each_slice( (pathnames_per_binary.size/2.0).round ).to_a
+          left, right = pathnames_per_binary.each_slice((pathnames_per_binary.size / 2.0).round).to_a
           coverage_files.concat(create_coverage_files_for_binary(binary_path, left))
           coverage_files.concat(create_coverage_files_for_binary(binary_path, right))
         else
-          # pathnames_per_binary contains one element which is too big for the OS to handle. 
+          # pathnames_per_binary contains one element which is too big for the OS to handle.
           raise e, "#{e}. A path in your project is close to the E2BIG limit. https://github.com/SlatherOrg/slather/pull/414", e.backtrace
         end
       end
 
       coverage_files
     end
+
     private :create_coverage_files_for_binary
 
     def create_coverage_files(binary_path, pathnames)
@@ -172,11 +178,13 @@ module Slather
         !coverage_file.ignored? ? coverage_file : nil
       end.compact
     end
+
     private :create_coverage_files
 
     def create_profdata(binary_path, pathnames)
       profdata_llvm_cov_output(binary_path, pathnames).split("\n\n")
     end
+
     private :create_profdata
 
     def remove_extension(path)
@@ -193,15 +201,13 @@ module Slather
     def profdata_coverage_dir
       raise StandardError, "The specified build directory (#{self.build_directory}) does not exist" unless File.exists?(self.build_directory)
       dir = nil
-      if self.scheme
-        dir = Dir[File.join(build_directory,"/**/CodeCoverage/#{self.scheme}")].first
-      else
-        dir = Dir[File.join(build_directory,"/**/#{first_product_name}")].first
-      end
+      self.scheme ?
+          dir = Dir[File.join(build_directory, "/**/CodeCoverage/#{self.scheme}")].first :
+          dir = Dir[File.join(build_directory, "/**/#{first_product_name}")].first
 
       if dir == nil
         # Xcode 7.3 moved the location of Coverage.profdata
-        dir = Dir[File.join(build_directory,"/**/CodeCoverage")].first
+        dir = Dir[File.join(build_directory, "/**/CodeCoverage")].first
       end
 
       if dir == nil && Slather.xcode_version[0] >= 9
@@ -215,7 +221,7 @@ module Slather
         end
 
         if coverage_files != nil && coverage_files.count != 0
-          dir = Pathname.new(coverage_files.first).parent()
+          dir = Pathname.new(coverage_files.first).parent
         end
       end
 
@@ -229,12 +235,13 @@ module Slather
         raise StandardError, "No coverage directory found. Please make sure the \"Code Coverage\" checkbox is enabled in your scheme's Test action or the build_directory property is set."
       end
 
-      file =  Dir["#{profdata_coverage_dir}/**/Coverage.profdata"].first
+      file = Dir["#{profdata_coverage_dir}/**/Coverage.profdata"].first
       unless file != nil
         return nil
       end
-      return File.expand_path(file)
+      File.expand_path(file)
     end
+
     private :profdata_file
 
     def unsafe_llvm_cov_export_output(binary_path)
@@ -253,12 +260,14 @@ module Slather
       end
       `xcrun llvm-cov #{llvm_cov_args.shelljoin}`
     end
+
     private :unsafe_llvm_cov_export_output
 
     def llvm_cov_export_output(binary_path)
       output = unsafe_llvm_cov_export_output(binary_path)
       output.valid_encoding? ? output : output.encode!('UTF-8', 'binary', :invalid => :replace, undef: :replace)
     end
+
     private :llvm_cov_export_output
 
     def unsafe_profdata_llvm_cov_output(binary_path, source_files)
@@ -277,17 +286,20 @@ module Slather
       end
       `xcrun llvm-cov #{llvm_cov_args.shelljoin} #{source_files.shelljoin}`
     end
+
     private :unsafe_profdata_llvm_cov_output
 
     def profdata_llvm_cov_output(binary_path, source_files)
       output = unsafe_profdata_llvm_cov_output(binary_path, source_files)
       output.valid_encoding? ? output : output.encode!('UTF-8', 'binary', :invalid => :replace, undef: :replace)
     end
+
     private :profdata_llvm_cov_output
 
     def dedupe(coverage_files)
-      coverage_files.group_by(&:source_file_pathname).values.map { |cf_array| cf_array.max_by(&:percentage_lines_tested) }
+      coverage_files.group_by(&:source_file_pathname).values.map {|cf_array| cf_array.max_by(&:percentage_lines_tested)}
     end
+
     private :dedupe
 
     def self.yml_filename
@@ -392,7 +404,7 @@ module Slather
     end
 
     def ci_service=(service)
-      @ci_service = service && service.to_sym
+      @ci_service = service&.to_sym
     end
 
     def configure_coverage_service
@@ -404,7 +416,7 @@ module Slather
     end
 
     def coverage_service=(service)
-      service = service && service.to_sym
+      service = service&.to_sym
       case service
       when :coveralls
         extend(Slather::CoverageService::Coveralls)
@@ -438,7 +450,7 @@ module Slather
       self.arch ||= self.class.yml["arch"] if self.class.yml["arch"]
     end
 
-    def decimal_f decimal_arg
+    def decimal_f(decimal_arg)
       configure_decimals unless decimals
       decimal = "%.#{decimals}f" % decimal_arg
       return decimal if decimals == 2 # special case 2 for backwards compatibility
@@ -464,7 +476,7 @@ module Slather
         xcscheme_path = "#{schemes_path + self.scheme}.xcscheme"
 
         # Try to look inside 'xcuserdata' if the scheme is not found in 'xcshareddata'
-        if !File.file?(xcscheme_path)
+        unless File.file?(xcscheme_path)
           schemes_path = Xcodeproj::XCScheme.user_data_dir(self.path)
           xcscheme_path = "#{schemes_path + self.scheme}.xcscheme"
         end
@@ -474,7 +486,7 @@ module Slather
           schemes_path = Xcodeproj::XCScheme.shared_data_dir(self.workspace)
           xcscheme_path = "#{schemes_path + self.scheme}.xcscheme"
 
-          if !File.file?(xcscheme_path)
+          unless File.file?(xcscheme_path)
             schemes_path = Xcodeproj::XCScheme.user_data_dir(self.workspace)
             xcscheme_path = "#{schemes_path + self.scheme}.xcscheme"
           end
@@ -499,11 +511,11 @@ module Slather
         end
 
         search_list.each do |search_for|
-          found_product = Dir["#{search_dir}/Products/#{configuration}*/#{search_for}*"].sort { |x, y|
+          found_product = Dir["#{search_dir}/Products/#{configuration}*/#{search_for}*"].sort {|x, y|
             # Sort the matches without the file extension to ensure better matches when there are multiple candidates
             # For example, if the binary_basename is Test then we want Test.app to be matched before Test Helper.app
             File.basename(x, File.extname(x)) <=> File.basename(y, File.extname(y))
-          }.find { |path|
+          }.find {|path|
             next if path.end_with? ".dSYM"
             next if path.end_with? ".swiftmodule"
 
@@ -526,9 +538,9 @@ module Slather
           end
         end
       else
-        xctest_bundle = Dir["#{profdata_coverage_dir}/**/*.xctest"].reject { |bundle|
-            # Ignore xctest bundles that are in the UI runner app
-            bundle.include? "-Runner.app/PlugIns/"
+        xctest_bundle = Dir["#{profdata_coverage_dir}/**/*.xctest"].reject {|bundle|
+          # Ignore xctest bundles that are in the UI runner app
+          bundle.include? "-Runner.app/PlugIns/"
         }.first
 
         # Find the matching binary file
@@ -558,7 +570,7 @@ module Slather
 
       raise StandardError, "No product binary found in #{profdata_coverage_dir}." unless found_binaries.count > 0
 
-      found_binaries.map { |binary| File.expand_path(binary) }
+      found_binaries.map {|binary| File.expand_path(binary)}
     end
 
     def find_buildable_names(xcscheme)
@@ -569,7 +581,7 @@ module Slather
         xcscheme.build_action.entries.each do |entry|
           buildable_name = entry.buildable_references[0].buildable_name
 
-          if !buildable_name.end_with? ".a"
+          unless buildable_name.end_with? ".a"
             # Can't run code coverage on static libraries
             found_buildable_names.push(buildable_name)
           end
@@ -607,19 +619,19 @@ module Slather
       return if source_files.nil?
 
       current_dir = Pathname("./").realpath
-      paths = source_files.flat_map { |pattern| Dir.glob(pattern) }.uniq
+      paths = source_files.flat_map {|pattern| Dir.glob(pattern)}.uniq
 
       paths.map do |path|
         source_file_absolute_path = Pathname(path).realpath
         source_file_relative_path = source_file_absolute_path.relative_path_from(current_dir)
-        self.ignore_list.any? { |ignore| File.fnmatch(ignore, source_file_relative_path) } ? nil : source_file_absolute_path
+        self.ignore_list.any? {|ignore| File.fnmatch(ignore, source_file_relative_path)} ? nil : source_file_absolute_path
       end.compact
     end
 
     def load_option_array(option)
       value = self.send(option.to_sym)
       # Only load if a value is not already set
-      if !value
+      unless value
         value_yml = self.class.yml[option]
         # Need to check the type in the config file because it can be a string or array
         if value_yml and value_yml.is_a? Array

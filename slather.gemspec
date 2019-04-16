@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
+  spec.metadata["yard.run"] = "yri" # use "yard" to build full HTML docs.
 
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'coveralls', '~> 0'
@@ -23,14 +24,14 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 12.3'
   spec.add_development_dependency 'rspec', '~> 3.8'
   spec.add_development_dependency 'pry', '~> 0.12'
-  spec.add_development_dependency 'cocoapods', '~> 1.5'
+  spec.add_development_dependency 'cocoapods', '~> 1.6'
   spec.add_development_dependency 'json_spec', '~> 1.1'
   spec.add_development_dependency 'equivalent-xml', '~> 0.6'
 
   spec.add_dependency 'clamp', '~> 1.3'
-  spec.add_dependency 'xcodeproj', '~> 1.7'
-  spec.add_dependency 'nokogiri', '~> 1.8'
+  spec.add_dependency 'xcodeproj', '~> 1.8'
+  spec.add_dependency 'nokogiri', '~> 1.10'
   spec.add_dependency 'CFPropertyList', '>= 2.2', '< 4'
 
-  spec.add_runtime_dependency 'activesupport', '< 5', '>= 4.0.2'
+  spec.add_runtime_dependency 'activesupport', '>= 4.0.2', '< 5'
 end

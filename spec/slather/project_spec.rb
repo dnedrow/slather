@@ -120,10 +120,10 @@ describe Slather::Project do
     end
 
     it "Should catch Errno::E2BIG and return Coverage.profdata file objects when the work can be split into two" do
-      allow(fixtures_project).to receive(:unsafe_profdata_llvm_cov_output).once { 
+      allow(fixtures_project).to receive(:unsafe_profdata_llvm_cov_output).once {
         # raise once and then insert the stub
         allow(fixtures_project).to receive(:profdata_llvm_cov_output).and_return(profdata_llvm_cov_output)
-        raise Errno::E2BIG 
+        raise Errno::E2BIG
       }
       profdata_coverage_files = fixtures_project.send(:profdata_coverage_files)
       profdata_coverage_files.each { |cf| expect(cf.kind_of?(SpecXcode7CoverageFile)).to be_truthy }
@@ -645,7 +645,7 @@ describe Slather::Project do
       proj.build_directory = TEMP_DERIVED_DATA_PATH
       proj.input_format = "profdata"
       proj.source_files = ["./**/fixtures{,Two}.m"]
-      proj.binary_basename = ["fixturesTests", "libfixturesTwo"]
+      proj.binary_basename = %w(fixturesTests libfixturesTwo)
       proj.configure
       proj
     end
@@ -653,8 +653,8 @@ describe Slather::Project do
     it "should find relevant source files" do
       source_files = fixtures_project.find_source_files
       expect(source_files.count).to eq(2)
-      expect(source_files.first.to_s).to include("fixtures.m")
-      expect(source_files.last.to_s).to include("fixturesTwo.m")
+      expect(source_files.to_s).to include("fixturesTwo.m")
+      expect(source_files.to_s).to include("fixtures.m")
     end
 
     it "should print out the coverage for each file, and then total coverage" do
